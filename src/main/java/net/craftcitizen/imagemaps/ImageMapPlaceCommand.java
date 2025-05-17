@@ -63,12 +63,24 @@ public class ImageMapPlaceCommand extends ImageMapSubCommand {
             return null;
         }
 
+        int maxBlockSize = getPlugin().getMaxBlockSize();
+        
+        Tuple<Integer, Integer> size = getPlugin().getImageSize(filename, scale);
+        int blockSizeX = (int) size.getKey();
+        int blockSizeY = (int) size.getValue();
+
+        if (blockSizeX > maxBlockSize || blockSizeY > maxBlockSize) {
+            MessageUtil.sendMessage(getPlugin(), sender, MessageLevel.WARNING,
+                                    String.format("Image is too large! Maximum Image Size is %d by %d blocks.",
+                                                  maxBlockSize, maxBlockSize));
+            return null;
+        }
+        
         Player player = (Player) sender;
         player.setMetadata(ImageMaps.PLACEMENT_METADATA,
                            new FixedMetadataValue(getPlugin(),
                                                   new PlacementData(filename, isInvisible, isFixed, isGlowing, scale)));
-
-        Tuple<Integer, Integer> size = getPlugin().getImageSize(filename, scale);
+        
         MessageUtil.sendMessage(getPlugin(), sender, MessageLevel.NORMAL,
                                 String.format("Started placing of %s. It needs a %d by %d area.", args[1],
                                               size.getKey(), size.getValue()));

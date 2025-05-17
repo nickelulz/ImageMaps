@@ -62,7 +62,10 @@ public class ImageMaps extends JavaPlugin implements Listener {
     private Map<ImageMap, Integer> maps = new HashMap<>();
 
     private Material toggleItem;
+    private int maxBlockSize;
 
+    public int getMaxBlockSize() { return maxBlockSize; }
+    
     static {
         ConfigurationSerialization.registerClass(ImageMap.class);
     }
@@ -85,6 +88,8 @@ public class ImageMaps extends JavaPlugin implements Listener {
             toggleItem = Material.WOODEN_HOE;
             getLogger().warning("Given toggleItem is invalid, defaulting to WOODEN_HOE");
         }
+
+        maxBlockSize = getConfig().getInt("maxBlockSize");
 
         getCommand("imagemap").setExecutor(new ImageMapCommandHandler(this));
         getServer().getPluginManager().registerEvents(this, this);
@@ -484,9 +489,7 @@ public class ImageMaps extends JavaPlugin implements Listener {
         return item;
     }
 
-    public Tuple<Integer, Integer> getImageSize(String filename, Tuple<Integer, Integer> size) {
-        BufferedImage image = getImage(filename);
-
+    public Tuple<Integer, Integer> getImageSizeDirectScaled(BufferedImage image, Tuple<Integer, Integer> size) {
         if (image == null)
             return new Tuple<>(0, 0);
 
@@ -495,6 +498,15 @@ public class ImageMaps extends JavaPlugin implements Listener {
         int finalY = (int) ((MAP_HEIGHT - 1 + Math.ceil(image.getHeight() * finalScale)) / MAP_HEIGHT);
 
         return new Tuple<>(finalX, finalY);
+    }
+    
+    public Tuple<Integer, Integer> getImageSizeDirect(BufferedImage image) {
+        return getImageSizeDirectScaled(image, new Tuple<Integer, Integer>(1, 1));
+    }
+    
+    public Tuple<Integer, Integer> getImageSize(String filename, Tuple<Integer, Integer> size) {
+        BufferedImage image = getImage(filename);
+        return getImageSizeDirectScaled(image, size);
     }
 
     public double getScale(String filename, Tuple<Integer, Integer> size) {

@@ -1,6 +1,7 @@
 package net.craftcitizen.imagemaps;
 
 import de.craftlancer.core.LambdaRunnable;
+import de.craftlancer.core.util.Tuple;
 import de.craftlancer.core.util.MessageLevel;
 import de.craftlancer.core.util.MessageUtil;
 import org.bukkit.command.Command;
@@ -87,6 +88,19 @@ public class ImageMapDownloadCommand extends ImageMapSubCommand {
                     return;
                 }
 
+                int maxBlockSize = getPlugin().getMaxBlockSize();
+                
+                Tuple<Integer, Integer> blockSize = getPlugin().getImageSizeDirect(image);
+                int blockSizeX = (int) blockSize.getKey();
+                int blockSizeY = (int) blockSize.getValue();
+
+                if (blockSizeX > maxBlockSize || blockSizeY > maxBlockSize) {
+                    MessageUtil.sendMessage(getPlugin(), sender, MessageLevel.WARNING,
+                                            String.format("Image is too large! Maximum Image Size is %d by %d blocks.",
+                                                          maxBlockSize, maxBlockSize));
+                    return;
+                }
+                
                 File outFile = new File(plugin.getDataFolder(), "images" + File.separatorChar + filename);
                 boolean fileExisted = outFile.exists();
                 ImageIO.write(image, "PNG", outFile);
